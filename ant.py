@@ -20,3 +20,7 @@ class Ant:
         x, y = action.value
         self._position_x += x
         self._position_y += y
+
+class Fruit():
+    pass
+
