@@ -2,61 +2,26 @@ import random
 import time
 import msvcrt
 
-class Ant:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.is_alive = True
+BOUNDARY_X = 15
+BOUNDARY_Y = 15
 
-    def move(self, dx, dy):
-        self.x += dx
-        self.y += dy
+def select_entity(ant_mod: float = 0.1, fruit_mod: float = 0.2, space_mod: float = 0.6) -> str:
+    ant_chance: float = random.random() * ant_mod
+    fruit_chane: float = random.random() * fruit_mod
+    if ant_chance == fruit_chane:
+        return ' '
 
-class Fruit:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+    space_chance: float = random.random() * space_mod
 
-def spawn_fruit():
-    x = random.randint(0, 9)
-    y = random.randint(0, 9)
-    return Fruit(x, y)
+    chosen: float = max(ant_chance, fruit_chane, space_chance)
+    if chosen == ant_chance:
+        return 'A'
+    elif chosen == fruit_chane:
+        return 'F'
+    else :
+        return ' '
+    
+world: list[list[str]] = [[select_entity() for _ in range(BOUNDARY_X) ] for _ in range(BOUNDARY_Y)]
+for line in world:
+    print(line)
 
-def get_key():
-    return msvcrt.getch().decode('utf-8').lower()
-
-
-ant = Ant(5, 5)
-fruits = [spawn_fruit() for _ in range(5)]
-
-def print_game():
-    for row in range(15):
-        for col in range(15):
-            if ant.x == col and ant.y == row:
-                print("A", end=" ") 
-            elif any(fruit.x == col and fruit.y == row for fruit in fruits):
-                print("F", end=" ")  
-            else:
-                print(".", end=" ") 
-        print()
-
-while True:
-    print_game()
-
-    key = get_key()
-    if key == 'w' or key == 'up':
-        ant.move(0, -1)  
-    elif key == 's' or key == 'down':
-        ant.move(0, 1)   
-    elif key == 'a' or key == 'left':
-        ant.move(-1, 0) 
-    elif key == 'd' or key == 'right':
-        ant.move(1, 0)   
-
-
-    for fruit in fruits:
-        if ant.x == fruit.x and ant.y == fruit.y:
-            fruits.remove(fruit)
-            fruits.append(spawn_fruit())
-
-    time.sleep(0.5)  
