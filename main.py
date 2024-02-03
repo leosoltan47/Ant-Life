@@ -37,7 +37,7 @@ class GameBoard:
         if chosen == ant_chance:
             return 'A'
         if chosen == fruit_chance:
-            return 'F'
+            return 'F' 
         else:
             return ' '
     
