@@ -7,9 +7,6 @@ BOUNDARY_Y = 15
 
 class GameBoard:
 
-    class Ant:
-        pass
-
     def __init__(self, width, height):
         self.width = width
         self.height = height
