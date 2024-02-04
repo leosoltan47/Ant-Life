@@ -1,24 +1,3 @@
-import random
-
-class World:
-    def __init__(self, width, height):
-        self.width = width
-        self.height = height
-        self.entities = []
-
-    def spawn_food(self):
-        x = random.randint(0, self.width - 1)
-        y = random.randint(0, self.height - 1)
-        self.entities.append(Fruit(x, y))
-
-    def print_world(self):
-        for y in range(self.height):
-            for x in range(self.width):
-                if any(entity.x == x and entity.y == y for entity in self.entities):
-                    print('F', end=' ')
-                else:
-                    print('_', end=' ')
-            print()
 
 class Ant:
     def __init__(self, x, y):
@@ -38,22 +17,4 @@ class Ant:
         dx, dy = random.choice([-1, 0, 1]), random.choice([-1, 0, 1])
         self.move(dx, dy)
 
-class Fruit:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
 
-# Create the world and spawn food
-world = World(10, 10)
-world.spawn_food()
-world.spawn_food()
-
-# Create ants
-ant1 = Ant(2, 2)
-ant2 = Ant(5, 5)
-
-# Game loop
-for _ in range(5):
-    world.print_world()
-    ant1.action()
-    ant2.action()
