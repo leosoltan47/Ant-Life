@@ -1,6 +1,7 @@
 import random
 import time
 import msvcrt
+from os import system
 
 BOUNDARY_X = 5
 BOUNDARY_Y = 5
@@ -52,7 +53,7 @@ class GameBoard:
         print("-"*(self.width*5))
     
     def move_ants(self):
-        antList = [row[:] for row in self.antList]
+        antList = [row.copy() for row in self.antList]
 
         for row in range(len(self.world)):
             for col in range(len(self.world[row])):
@@ -113,7 +114,8 @@ while True:  # Main Code
         #key = key.decode("utf-8").lower()
         #world, antList, fruitList = World.move_ant(key)
 
-    time.sleep(5)  
+    time.sleep(1)  
+    system('cls')
     
 
 
