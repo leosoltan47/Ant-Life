@@ -1,6 +1,5 @@
 import random
 import time
-import msvcrt
 from os import system
 
 BOUNDARY_X = 5
@@ -98,24 +97,6 @@ while True:  # Main Code
     World.print_world()
     World.move_ants()
     
-    #key = msvcrt.getch()
-    #print(key)
-    if False and key == b'\xe0' :
-        key = msvcrt.getch()
-        if key == b'K':
-            world, antList, fruitList = World.move_ant('a')  # Left arrow
-        elif key == b'M':
-            world, antList, fruitList = World.move_ant('d')  # Right arrow
-        elif key == b'H':
-            world, antList, fruitList = World.move_ant('w')  # Up arrow
-        elif key == b'P':
-            world, antList, fruitList = World.move_ant('s')  # Down arrow
-    #else:
-        #key = key.decode("utf-8").lower()
-        #world, antList, fruitList = World.move_ant(key)
 
     time.sleep(1)  
     system('cls')
-    
-
-
