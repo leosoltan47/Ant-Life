@@ -64,13 +64,16 @@ class GameBoard:
                 #Check if ant present on the tile
                 if not self.antList[row][col]: 
                     continue
-                possible_moves = [
-                            (row + x, col + y)
-                            for x in range(-1, 2)
-                            for y in range(-1, 2)
-                            if 0 <= row + x < len(self.world) and not antList[row + x][col]
-                            if 0 <= col + y < len(self.world[row]) and not antList[row][col + y]
-                        ]
+                possible_moves = []
+
+                if row - 1 >= 0 and not antList[row - 1][col]:
+                    possible_moves.append((row - 1, col))
+                if row + 1 < len(self.world) and not antList[row + 1][col]:
+                    possible_moves.append((row + 1, col))
+                if col - 1 >= 0 and not antList[row][col - 1]:
+                    possible_moves.append((row, col - 1))
+                if col + 1 < len(self.world[row]) and not antList[row][col + 1]:
+                    possible_moves.append((row, col + 1)) 
 
                 #Blocked ants will remain on their tile
                 if not possible_moves:
@@ -96,8 +99,7 @@ class GameBoard:
 
 def main() -> None:
     World = GameBoard(BOUNDARY_X, BOUNDARY_Y)
-
-    for _ in range(1000):
+    while True:
         World.print_world()
         World.move_ants()
         time.sleep(1)  
