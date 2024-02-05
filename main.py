@@ -40,14 +40,15 @@ class GameBoard:
     def _fill_fruitList(self) -> list[list[bool]]:
             return [ [tile == FRUIT for tile in line] for line in self.world ] 
 
-    def _respawn_fruits(self, new_row: int, new_col: int, row: int, antList: list[list[bool]]) -> None:
-        respawn_row, respawn_col = random.randint(0, len(self.world) - 1), random.randint(0, len(self.world[row]) - 1)
+    def _get_new_fruit_location(self, new_row: int, new_col: int, antList: list[list[bool]]) -> tuple[int, int]:
+        return random.choice([
+                (x, y)
+                for x, line in enumerate(self.world)
+                for y, line in enumerate(line)
+                if x != new_row and y != new_col
+                if not antList[x][y] and not self.fruitList[x][y]
+            ])
 
-        while (antList[respawn_row][respawn_col] or (respawn_row == new_row and respawn_col == new_col)) and self.fruitList[respawn_row][respawn_col]:
-            respawn_row, respawn_col = random.randint(0, len(self.world) - 1), random.randint(0, len(self.world[row]) - 1)
-
-        self.fruitList[respawn_row][respawn_col] = True
-        self.world[respawn_row][respawn_col] = FRUIT
 
                  
     def print_world(self) -> None:
@@ -65,8 +66,8 @@ class GameBoard:
                     continue
                 possible_moves = [
                             (row + x, col + y)
-                            for x in [-1, 1] #ant not antList case will remove all possibilities to stay on the same tile
-                            for y in [-1, 1] #that is why 0 is not included in the list
+                            for x in range(-1, 2)
+                            for y in range(-1, 2)
                             if 0 <= row + x < len(self.world) and not antList[row + x][col]
                             if 0 <= col + y < len(self.world[row]) and not antList[row][col + y]
                         ]
@@ -86,6 +87,10 @@ class GameBoard:
                     continue
                 self.fruitList[new_row][new_col] = False 
 
+                respawn_row, respawn_col = self._get_new_fruit_location(new_row, new_col, antList)
+                self.fruitList[respawn_row][respawn_col] = True
+                self.world[respawn_row][respawn_col] = FRUIT
+
 
         self.antList = antList
 
@@ -93,10 +98,10 @@ def main() -> None:
     World = GameBoard(BOUNDARY_X, BOUNDARY_Y)
 
     for _ in range(1000):
-        #World.print_world()
+        World.print_world()
         World.move_ants()
-        #time.sleep(1)  
-        #system('cls')
+        time.sleep(1)  
+        system('cls')
 
 if __name__ == "__main__":
     main()
