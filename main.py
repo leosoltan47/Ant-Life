@@ -35,10 +35,19 @@ class GameBoard:
             return EMPTY
     
     def _fill_antList(self) -> list[list[bool]]:
-            return [ [tile == ANT for tile in line ] for line in self.world ]
+            return [ [tile == ANT for tile in line] for line in self.world ]
 
     def _fill_fruitList(self) -> list[list[bool]]:
-            return [ [tile == FRUIT for tile in line ] for line in self.world ] 
+            return [ [tile == FRUIT for tile in line] for line in self.world ] 
+
+    def _respawn_fruits(self, new_row: int, new_col: int, row: int, antList: list[list[bool]]) -> None:
+        respawn_row, respawn_col = random.randint(0, len(self.world) - 1), random.randint(0, len(self.world[row]) - 1)
+
+        while (antList[respawn_row][respawn_col] or (respawn_row == new_row and respawn_col == new_col)) and self.fruitList[respawn_row][respawn_col]:
+            respawn_row, respawn_col = random.randint(0, len(self.world) - 1), random.randint(0, len(self.world[row]) - 1)
+
+        self.fruitList[respawn_row][respawn_col] = True
+        self.world[respawn_row][respawn_col] = FRUIT
 
                  
     def print_world(self):
@@ -47,41 +56,39 @@ class GameBoard:
         print("-"*(self.width*5))
     
     def move_ants(self):
-        antList = [row.copy() for row in self.antList]
+        antList = self.antList.copy()
 
         for row in range(len(self.world)):
             for col in range(len(self.world[row])):
-                if self.antList[row][col]: 
-                    possible_moves = []
+                #Check if ant present on the tile
+                if not self.antList[row][col]: 
+                    continue
+                possible_moves = []
 
-                    if row - 1 >= 0 and not antList[row - 1][col]:
-                        possible_moves.append((row - 1, col))
-                    if row + 1 < len(self.world) and not antList[row + 1][col]:
-                        possible_moves.append((row + 1, col))
-                    if col - 1 >= 0 and not antList[row][col - 1]:
-                        possible_moves.append((row, col - 1))
-                    if col + 1 < len(self.world[row]) and not antList[row][col + 1]:
-                        possible_moves.append((row, col + 1)) 
+                if row - 1 >= 0 and not antList[row - 1][col]:
+                    possible_moves.append((row - 1, col))
+                if row + 1 < len(self.world) and not antList[row + 1][col]:
+                    possible_moves.append((row + 1, col))
+                if col - 1 >= 0 and not antList[row][col - 1]:
+                    possible_moves.append((row, col - 1))
+                if col + 1 < len(self.world[row]) and not antList[row][col + 1]:
+                    possible_moves.append((row, col + 1)) 
 
-                    if possible_moves:
-                        new_row, new_col = random.choice(possible_moves)
+                #Blocked ants will remain on their tile
+                if not possible_moves:
+                    continue
+                new_row, new_col = random.choice(possible_moves)
 
-                        antList[row][col] = False
-                        self.world[row][col] = EMPTY
-                        antList[new_row][new_col] = True
-                        self.world[new_row][new_col] = ANT
+                antList[row][col] = False
+                self.world[row][col] = EMPTY
+                antList[new_row][new_col] = True
+                self.world[new_row][new_col] = ANT
 
-                        if self.fruitList[new_row][new_col]:
-                            #print(f"Ant at ({row}, {col}) ate a fruit!")
-                            self.fruitList[new_row][new_col] = False 
+                #If the fruit was eaten it needs to be respawned
+                if not self.fruitList[new_row][new_col]:
+                    continue
+                self.fruitList[new_row][new_col] = False 
 
-                            respawn_row, respawn_col = random.randint(0, len(self.world) - 1), random.randint(0, len(self.world[row]) - 1)
-
-                            while (antList[respawn_row][respawn_col] or (respawn_row == new_row and respawn_col == new_col)) and self.fruitList[respawn_row][respawn_col]:
-                                respawn_row, respawn_col = random.randint(0, len(self.world) - 1), random.randint(0, len(self.world[row]) - 1)
-
-                            self.fruitList[respawn_row][respawn_col] = True
-                            self.world[respawn_row][respawn_col] = FRUIT
 
         self.antList = antList
 
