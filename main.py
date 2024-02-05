@@ -12,7 +12,7 @@ EMPTY: str = " "
 
 class GameBoard:
 
-    def __init__(self, width, height):
+    def __init__(self, width, height) -> None:
         self.width = width
         self.height = height
         self.world = [[self.select_entity() for _ in range(self.width)] for _ in range(self.height)]
@@ -50,12 +50,12 @@ class GameBoard:
         self.world[respawn_row][respawn_col] = FRUIT
 
                  
-    def print_world(self):
+    def print_world(self) -> None:
         for line in self.world:
             print(line)
         print("-"*(self.width*5))
     
-    def move_ants(self):
+    def move_ants(self) -> None:
         antList = self.antList.copy()
 
         for row in range(len(self.world)):
@@ -92,13 +92,14 @@ class GameBoard:
 
         self.antList = antList
 
+def main() -> None:
+    World = GameBoard(BOUNDARY_X, BOUNDARY_Y)
 
-World = GameBoard(BOUNDARY_X, BOUNDARY_Y)
+    while True:
+        World.print_world()
+        World.move_ants()
+        time.sleep(1)  
+        system('cls')
 
-while True:  # Main Code
-    World.print_world()
-    World.move_ants()
-    
-
-    time.sleep(1)  
-    system('cls')
+if __name__ == "__main__":
+    main()
