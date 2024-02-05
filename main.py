@@ -5,6 +5,11 @@ from os import system
 BOUNDARY_X = 5
 BOUNDARY_Y = 5
 
+ANT: str = "A"
+FRUIT: str = "F"
+EMPTY: str = " "
+
+
 class GameBoard:
 
     def __init__(self, width, height):
@@ -19,15 +24,15 @@ class GameBoard:
         ant_chance: float = random.random() * ant_mod
         fruit_chance: float = random.random() * fruit_mod
         if ant_chance == fruit_chance:
-            return ' '
+            return EMPTY
         space_chance: float = random.random() * space_mod
         chosen: float = max(ant_chance, fruit_chance, space_chance)
         if chosen == ant_chance:
-            return 'A'
+            return ANT
         elif chosen == fruit_chance:
-            return 'F'
+            return FRUIT
         else:
-            return ' '
+            return EMPTY
     
     def position(self, bool1):
         
@@ -36,9 +41,9 @@ class GameBoard:
 
         for row in range(len(self.world)):
             for col in range(len(self.world[row])):
-                if self.world[row][col] == "F":
+                if self.world[row][col] == FRUIT:
                     fruitList[row][col] = True
-                elif self.world[row][col] == "A":
+                elif self.world[row][col] == ANT:
                     antList[row][col] = True
     
         if bool1 == True:
@@ -72,9 +77,9 @@ class GameBoard:
                         new_row, new_col = random.choice(possible_moves)
 
                         antList[row][col] = None
-                        self.world[row][col] = ' '
+                        self.world[row][col] = EMPTY
                         antList[new_row][new_col] = True
-                        self.world[new_row][new_col] = 'A'
+                        self.world[new_row][new_col] = ANT
 
                         if self.fruitList[new_row][new_col]:
                             #print(f"Ant at ({row}, {col}) ate a fruit!")
@@ -86,7 +91,7 @@ class GameBoard:
                                 respawn_row, respawn_col = random.randint(0, len(self.world) - 1), random.randint(0, len(self.world[row]) - 1)
 
                             self.fruitList[respawn_row][respawn_col] = True
-                            self.world[respawn_row][respawn_col] = 'F'
+                            self.world[respawn_row][respawn_col] = FRUIT
 
         self.antList = antList
 
