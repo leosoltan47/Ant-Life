@@ -16,8 +16,8 @@ class GameBoard:
         self.width = width
         self.height = height
         self.world = [[self.select_entity() for _ in range(self.width)] for _ in range(self.height)]
-        self.antList = self._fill_antList()
-        self.fruitList = self._fill_fruitList()
+        self.antList = [ [tile == ANT for tile in line] for line in self.world ]
+        self.fruitList = [ [tile == FRUIT for tile in line] for line in self.world ]
         self.current_ant_index = 0
     
     def select_entity(self, ant_mod: float = 0.2, fruit_mod: float = 0.3, space_mod: float = 0.5) -> str:
@@ -34,12 +34,6 @@ class GameBoard:
         else:
             return EMPTY
     
-    def _fill_antList(self) -> list[list[bool]]:
-            return [ [tile == ANT for tile in line] for line in self.world ]
-
-    def _fill_fruitList(self) -> list[list[bool]]:
-            return [ [tile == FRUIT for tile in line] for line in self.world ] 
-
     def _get_new_fruit_location(self, new_row: int, new_col: int, antList: list[list[bool]]) -> tuple[int, int]:
         return random.choice([
                 (x, y)
@@ -48,8 +42,6 @@ class GameBoard:
                 if x != new_row and y != new_col
                 if not antList[x][y] and not self.fruitList[x][y]
             ])
-
-
                  
     def print_world(self) -> None:
         for line in self.world:
