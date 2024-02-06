@@ -10,35 +10,40 @@ FRUIT: str = "F"
 EMPTY: str = " "
 
 class Ant:
-    def __init__(self, x: int, y: int) -> None:
+    def __init__(self, x: int, y: int, energy: int) -> None:
         self.x = x
         self.y = y
+        self.energy = energy
+
     def move(self, dx: int, dy: int) -> tuple[int, int]:
         return (self.x + dx, self.y + dy)
 
     def action(self):
-        dx = random.choice([-1, 0, 1])
-        dy = random.choice([-1, 0, 1])
+        dx: int = random.choice([-1, 0, 1])
+        dy: int = random.choice([-1, 0, 1])
         return self.move(dx, dy)
 
-
 class GameBoard:
-
-    def __init__(self, width, height) -> None:
-        self.width = width
-        self.height = height
-        self.world = [[self.select_entity() for _ in range(self.width)] for _ in range(self.height)]
-        self.antList = [ [tile == ANT for tile in line] for line in self.world ]
-        self.fruitList = [ [tile == FRUIT for tile in line] for line in self.world ]
-        self.current_ant_index = 0
+    def __init__(self, width: int, height: int, initial_energy: int = 5) -> None:
+        self.width: int = width
+        self.height: int = height
+        self.world: list[list[str]] = [[self.select_entity() for _ in range(self.width)] for _ in range(self.height)]
+        self.antList: list[list[Ant | None]] = [
+                [Ant(row, col, initial_energy) if tile == ANT else None for col, tile in enumerate(line)]
+                for row, line in enumerate(self.world)
+                ]
+        self.fruitList: list[list[bool]] = [ [tile == FRUIT for tile in line] for line in self.world ]
     
     def select_entity(self, ant_mod: float = 0.2, fruit_mod: float = 0.3, space_mod: float = 0.5) -> str:
         ant_chance: float = random.random() * ant_mod
         fruit_chance: float = random.random() * fruit_mod
+
         if ant_chance == fruit_chance:
             return EMPTY
+
         space_chance: float = random.random() * space_mod
         chosen: float = max(ant_chance, fruit_chance, space_chance)
+
         if chosen == ant_chance:
             return ANT
         elif chosen == fruit_chance:
@@ -46,7 +51,7 @@ class GameBoard:
         else:
             return EMPTY
     
-    def get_new_fruit_location(self, new_row: int, new_col: int, antList: list[list[bool]]) -> tuple[int, int]:
+    def get_new_fruit_location(self, new_row: int, new_col: int, antList: list[list[Ant | None]]) -> tuple[int, int]:
         return random.choice([
                 (x, y)
                 for x, line in enumerate(self.world)
@@ -62,43 +67,54 @@ class GameBoard:
         print("-"*(self.width*5))
     
     def move_ants(self):
-        antList = [row.copy() for row in self.antList]
-
+        antList: list[list[Ant | None]] = [
+                [Ant(ant.x, ant.y, ant.energy) if ant is not None else None for ant in row]
+                for row in self.antList
+                ]
         for row in range(len(self.world)):
             for col in range(len(self.world[row])):
-                if self.antList[row][col]: 
-                    possible_moves = []
+                if self.antList[row][col] is not None: 
+                    possible_moves: list = []
 
-                    if row - 1 >= 0 and not antList[row - 1][col]:
+                    if row - 1 >= 0 and (antList[row - 1][col] is None):
                         possible_moves.append((row - 1, col))
-                    if row + 1 < len(self.world) and not antList[row + 1][col]:
+                    if row + 1 < len(self.world) and (antList[row + 1][col] is None):
                         possible_moves.append((row + 1, col))
-                    if col - 1 >= 0 and not antList[row][col - 1]:
+                    if col - 1 >= 0 and (antList[row][col - 1] is None):
                         possible_moves.append((row, col - 1))
-                    if col + 1 < len(self.world[row]) and not antList[row][col + 1]:
+                    if col + 1 < len(self.world[row]) and (antList[row][col + 1] is None):
                         possible_moves.append((row, col + 1)) 
 
                     if possible_moves:
+                        new_row: int
+                        new_col: int
                         new_row, new_col = random.choice(possible_moves)
+                        old_ant = antList[row][col]
 
-                        antList[row][col] = False
+                        antList[row][col].energy -= 1  # 1 movement cost 1 energy
                         self.world[row][col] = EMPTY
-                        antList[new_row][new_col] = True
+                        antList[new_row][new_col] = Ant(old_ant.x, old_ant.y, old_ant.energy)
+                        antList[row][col] = None
                         self.world[new_row][new_col] = ANT
 
                         if self.fruitList[new_row][new_col]:
-                            #print(f"Ant at ({row}, {col}) ate a fruit!")
+                            antList[new_row][new_col].energy += 3 # 1 fruit gives 3 energy
+
                             self.fruitList[new_row][new_col] = False 
 
                             respawn_row, respawn_col = self.get_new_fruit_location(new_row, new_col, antList)
 
                             self.fruitList[respawn_row][respawn_col] = True
                             self.world[respawn_row][respawn_col] = FRUIT
+                        
+                        if antList[new_row][new_col].energy == 0:
+                            antList[new_row][new_col] = None # Ant's Energy died
+                            self.world[new_row][new_col] = EMPTY
 
         self.antList = antList
 
 def main() -> None:
-    World = GameBoard(BOUNDARY_X, BOUNDARY_Y)
+    World: GameBoard = GameBoard(BOUNDARY_X, BOUNDARY_Y)
     while True:
         World.print_world()
         World.move_ants()
