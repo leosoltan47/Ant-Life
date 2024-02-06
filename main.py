@@ -9,6 +9,8 @@ ANT: str = "A"
 FRUIT: str = "F"
 EMPTY: str = " "
 
+class Ant:
+    pass
 
 class GameBoard:
 
@@ -34,7 +36,7 @@ class GameBoard:
         else:
             return EMPTY
     
-    def _get_new_fruit_location(self, new_row: int, new_col: int, antList: list[list[bool]]) -> tuple[int, int]:
+    def get_new_fruit_location(self, new_row: int, new_col: int, antList: list[list[bool]]) -> tuple[int, int]:
         return random.choice([
                 (x, y)
                 for x, line in enumerate(self.world)
@@ -44,48 +46,44 @@ class GameBoard:
             ])
                  
     def print_world(self) -> None:
+        system('cls')
         for line in self.world:
             print(line)
         print("-"*(self.width*5))
     
-    def move_ants(self) -> None:
-        antList = self.antList.copy()
+    def move_ants(self):
+        antList = [row.copy() for row in self.antList]
 
         for row in range(len(self.world)):
             for col in range(len(self.world[row])):
-                #Check if ant present on the tile
-                if not self.antList[row][col]: 
-                    continue
-                possible_moves = []
+                if self.antList[row][col]: 
+                    possible_moves = []
 
-                if row - 1 >= 0 and not antList[row - 1][col]:
-                    possible_moves.append((row - 1, col))
-                if row + 1 < len(self.world) and not antList[row + 1][col]:
-                    possible_moves.append((row + 1, col))
-                if col - 1 >= 0 and not antList[row][col - 1]:
-                    possible_moves.append((row, col - 1))
-                if col + 1 < len(self.world[row]) and not antList[row][col + 1]:
-                    possible_moves.append((row, col + 1)) 
+                    if row - 1 >= 0 and not antList[row - 1][col]:
+                        possible_moves.append((row - 1, col))
+                    if row + 1 < len(self.world) and not antList[row + 1][col]:
+                        possible_moves.append((row + 1, col))
+                    if col - 1 >= 0 and not antList[row][col - 1]:
+                        possible_moves.append((row, col - 1))
+                    if col + 1 < len(self.world[row]) and not antList[row][col + 1]:
+                        possible_moves.append((row, col + 1)) 
 
-                #Blocked ants will remain on their tile
-                if not possible_moves:
-                    continue
-                new_row, new_col = random.choice(possible_moves)
+                    if possible_moves:
+                        new_row, new_col = random.choice(possible_moves)
 
-                antList[row][col] = False
-                self.world[row][col] = EMPTY
-                antList[new_row][new_col] = True
-                self.world[new_row][new_col] = ANT
+                        antList[row][col] = False
+                        self.world[row][col] = EMPTY
+                        antList[new_row][new_col] = True
+                        self.world[new_row][new_col] = ANT
 
-                #If the fruit was eaten it needs to be respawned
-                if not self.fruitList[new_row][new_col]:
-                    continue
-                self.fruitList[new_row][new_col] = False 
+                        if self.fruitList[new_row][new_col]:
+                            #print(f"Ant at ({row}, {col}) ate a fruit!")
+                            self.fruitList[new_row][new_col] = False 
 
-                respawn_row, respawn_col = self._get_new_fruit_location(new_row, new_col, antList)
-                self.fruitList[respawn_row][respawn_col] = True
-                self.world[respawn_row][respawn_col] = FRUIT
+                            respawn_row, respawn_col = self.get_new_fruit_location(new_row, new_col, antList)
 
+                            self.fruitList[respawn_row][respawn_col] = True
+                            self.world[respawn_row][respawn_col] = FRUIT
 
         self.antList = antList
 
@@ -95,7 +93,6 @@ def main() -> None:
         World.print_world()
         World.move_ants()
         time.sleep(1)  
-        system('cls')
 
 if __name__ == "__main__":
     main()
