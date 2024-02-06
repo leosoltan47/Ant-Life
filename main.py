@@ -24,7 +24,6 @@ class Ant:
         return self.move(dx, dy)
 
 class GameBoard:
-
     def __init__(self, width: int, height: int, initial_energy: int = 5) -> None:
         self.width: int = width
         self.height: int = height
