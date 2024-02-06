@@ -5,9 +5,9 @@ from os import system
 BOUNDARY_X = 5
 BOUNDARY_Y = 5
 
-ANT: str = "A"
-FRUIT: str = "F"
-EMPTY: str = " "
+ANT = "🐜"
+FRUIT = "🍐"
+EMPTY = "  "
 
 class Ant:
     def __init__(self, x: int, y: int, energy: int) -> None:
@@ -64,7 +64,7 @@ class GameBoard:
         system('cls')
         for line in self.world:
             print(line)
-        print("-"*(self.width*5))
+        #print("-"*(self.width*5))
     
     def move_ants(self):
         antList: list[list[Ant | None]] = [
