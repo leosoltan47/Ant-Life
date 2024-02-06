@@ -10,19 +10,32 @@ FRUIT = "🍐"
 EMPTY = "  "
 
 class Ant:
-    def __init__(self, x: int, y: int, energy: int) -> None:
+    def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.energy = energy
 
-    def move(self, dx: int, dy: int) -> tuple[int, int]:
-        return (self.x + dx, self.y + dy)
+    def move(self, dx, dy):
+        new_x = self.x + dx
+        new_y = self.y + dy
+        if any(entity.x == new_x and entity.y == new_y for entity in world.entities if entity != self):
+            return  # Collision
+        if 0 <= new_x < world.width and 0 <= new_y < world.height:
+            self.x = new_x
+            self.y = new_y
 
     def action(self):
-        dx: int = random.choice([-1, 0, 1])
-        dy: int = random.choice([-1, 0, 1])
-        return self.move(dx, dy)
+        self.random_movement()
 
+    def random_movement(self):
+        dx, dy = random.choice([-1, 0, 1]), random.choice([-1, 0, 1])
+        self.move(dx, dy)
+
+    def gather_food(self):
+        # Add logic for gathering food
+
+    def communicate(self):
+        # Add logic for communication with other ants
+        
 class GameBoard:
     def __init__(self, width: int, height: int, initial_energy: int = 5) -> None:
         self.width: int = width
