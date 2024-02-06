@@ -51,13 +51,13 @@ class GameBoard:
             print(line)
         print("-"*(self.width*5))
     
-    def move_ants(self):
-        antList = [[Ant(energy=ant.energy) if ant is not None else None for ant in row] for row in self.antList] #.copy() creates new Ant classes 
+    def move_ants(self) -> None:
+        antList : list = [[Ant(energy=ant.energy) if ant is not None else None for ant in row] for row in self.antList] #.copy() creates new Ant classes 
 
         for row in range(len(self.world)):
             for col in range(len(self.world[row])):
                 if self.antList[row][col] is not None: 
-                    possible_moves = []
+                    possible_moves: list = []
 
                     if row - 1 >= 0 and (antList[row - 1][col] is None):
                         possible_moves.append((row - 1, col))
@@ -69,6 +69,8 @@ class GameBoard:
                         possible_moves.append((row, col + 1)) 
 
                     if possible_moves:
+                        new_row: int
+                        new_col: int
                         new_row, new_col = random.choice(possible_moves)
 
                         antList[row][col].energy -= 1  # 1 movement cost 1 energy
@@ -94,7 +96,7 @@ class GameBoard:
         self.antList = antList
 
 def main() -> None:
-    World = GameBoard(BOUNDARY_X, BOUNDARY_Y)
+    World : GameBoard = GameBoard(BOUNDARY_X, BOUNDARY_Y)
     while True:
         World.print_world()
         World.move_ants()
