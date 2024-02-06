@@ -10,7 +10,17 @@ FRUIT: str = "F"
 EMPTY: str = " "
 
 class Ant:
-    pass
+    def __init__(self, x: int, y: int) -> None:
+        self.x = x
+        self.y = y
+    def move(self, dx: int, dy: int) -> tuple[int, int]:
+        return (self.x + dx, self.y + dy)
+
+    def action(self):
+        dx = random.choice([-1, 0, 1])
+        dy = random.choice([-1, 0, 1])
+        return self.move(dx, dy)
+
 
 class GameBoard:
 
