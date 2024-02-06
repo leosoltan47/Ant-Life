@@ -10,25 +10,41 @@ FRUIT: str = "F"
 EMPTY: str = " "
 
 class Ant:
-    def __init__(self, energy):
+    def __init__(self, x: int, y: int, energy: int) -> None:
+        self.x = x
+        self.y = y
         self.energy = energy
+
+    def move(self, dx: int, dy: int) -> tuple[int, int]:
+        return (self.x + dx, self.y + dy)
+
+    def action(self):
+        dx: int = random.choice([-1, 0, 1])
+        dy: int = random.choice([-1, 0, 1])
+        return self.move(dx, dy)
 
 class GameBoard:
 
-    def __init__(self, width, height, initial_energy = 5) -> None:
-        self.width = width
-        self.height = height
-        self.world = [[self.select_entity() for _ in range(self.width)] for _ in range(self.height)]
-        self.antList = [[Ant(initial_energy) if tile == ANT else None for tile in line] for line in self.world]
-        self.fruitList = [ [tile == FRUIT for tile in line] for line in self.world ]
+    def __init__(self, width: int, height: int, initial_energy: int = 5) -> None:
+        self.width: int = width
+        self.height: int = height
+        self.world: list[list[str]] = [[self.select_entity() for _ in range(self.width)] for _ in range(self.height)]
+        self.antList: list[list[Ant | None]] = [
+                [Ant(row, col, initial_energy) if tile == ANT else None for col, tile in enumerate(line)]
+                for row, line in enumerate(self.world)
+                ]
+        self.fruitList: list[list[bool]] = [ [tile == FRUIT for tile in line] for line in self.world ]
     
     def select_entity(self, ant_mod: float = 0.2, fruit_mod: float = 0.3, space_mod: float = 0.5) -> str:
         ant_chance: float = random.random() * ant_mod
         fruit_chance: float = random.random() * fruit_mod
+
         if ant_chance == fruit_chance:
             return EMPTY
+
         space_chance: float = random.random() * space_mod
         chosen: float = max(ant_chance, fruit_chance, space_chance)
+
         if chosen == ant_chance:
             return ANT
         elif chosen == fruit_chance:
@@ -36,7 +52,7 @@ class GameBoard:
         else:
             return EMPTY
     
-    def get_new_fruit_location(self, new_row: int, new_col: int, antList: list[list[bool]]) -> tuple[int, int]:
+    def get_new_fruit_location(self, new_row: int, new_col: int, antList: list[list[Ant | None]]) -> tuple[int, int]:
         return random.choice([
                 (x, y)
                 for x, line in enumerate(self.world)
@@ -51,9 +67,11 @@ class GameBoard:
             print(line)
         print("-"*(self.width*5))
     
-    def move_ants(self) -> None:
-        antList : list = [[Ant(energy=ant.energy) if ant is not None else None for ant in row] for row in self.antList] #.copy() creates new Ant classes 
-
+    def move_ants(self):
+        antList: list[list[Ant | None]] = [
+                [Ant(ant.x, ant.y, ant.energy) if ant is not None else None for ant in row]
+                for row in self.antList
+                ]
         for row in range(len(self.world)):
             for col in range(len(self.world[row])):
                 if self.antList[row][col] is not None: 
@@ -72,10 +90,11 @@ class GameBoard:
                         new_row: int
                         new_col: int
                         new_row, new_col = random.choice(possible_moves)
+                        old_ant = antList[row][col]
 
                         antList[row][col].energy -= 1  # 1 movement cost 1 energy
                         self.world[row][col] = EMPTY
-                        antList[new_row][new_col] = Ant(energy=antList[row][col].energy)
+                        antList[new_row][new_col] = Ant(old_ant.x, old_ant.y, old_ant.energy)
                         antList[row][col] = None
                         self.world[new_row][new_col] = ANT
 
@@ -96,7 +115,7 @@ class GameBoard:
         self.antList = antList
 
 def main() -> None:
-    World : GameBoard = GameBoard(BOUNDARY_X, BOUNDARY_Y)
+    World: GameBoard = GameBoard(BOUNDARY_X, BOUNDARY_Y)
     while True:
         World.print_world()
         World.move_ants()
