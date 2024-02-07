@@ -19,9 +19,9 @@ class Ant:
     def count(self):
         self.step_count += 1
 
-    #def move(self, dx: int, dy: int) -> tuple[int, int]:
-        #self.step_count += 1
-        #return (self.x + dx, self.y + dy)
+    def move(self, dx: int, dy: int) -> tuple[int, int]:
+        self.step_count += 1
+        return (self.x + dx, self.y + dy)
     
     def action(self):
         dx: int = random.choice([-1, 0, 1])
