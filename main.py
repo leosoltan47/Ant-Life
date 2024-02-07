@@ -10,26 +10,34 @@ FRUIT = "🍐"
 EMPTY = "  "
 
 class Ant:
-    def __init__(self, x: int, y: int, energy: int) -> None:
+    def __init__(self, x: int, y: int, energy: int, step_count: int) -> None:
         self.x = x
         self.y = y
         self.energy = energy
+        self.step_count = step_count
 
     def move(self, dx: int, dy: int) -> tuple[int, int]:
         return (self.x + dx, self.y + dy)
-
+    
     def action(self):
+        self.step_count += 1
         dx: int = random.choice([-1, 0, 1])
         dy: int = random.choice([-1, 0, 1])
         return self.move(dx, dy)
 
+    def reproduce(self, old_x, old_y) -> 'Ant':
+        if self.step_count >= 5:
+            return Ant(old_x, old_y, 5, 1)
+        else:
+            return None
+
 class GameBoard:
-    def __init__(self, width: int, height: int, initial_energy: int = 5) -> None:
+    def __init__(self, width: int, height: int, initial_energy: int = 5 , initial_step: int = 1) -> None:
         self.width: int = width
         self.height: int = height
         self.world: list[list[str]] = [[self.select_entity() for _ in range(self.width)] for _ in range(self.height)]
         self.antList: list[list[Ant | None]] = [
-                [Ant(row, col, initial_energy) if tile == ANT else None for col, tile in enumerate(line)]
+                [Ant(row, col, initial_energy, initial_step) if tile == ANT else None for col, tile in enumerate(line)]
                 for row, line in enumerate(self.world)
                 ]
         self.fruitList: list[list[bool]] = [ [tile == FRUIT for tile in line] for line in self.world ]
@@ -68,7 +76,7 @@ class GameBoard:
     
     def move_ants(self):
         antList: list[list[Ant | None]] = [
-                [Ant(ant.x, ant.y, ant.energy) if ant is not None else None for ant in row]
+                [Ant(ant.x, ant.y, ant.energy, ant.step_count) if ant is not None else None for ant in row]
                 for row in self.antList
                 ]
         for row in range(len(self.world)):
@@ -89,11 +97,13 @@ class GameBoard:
                         new_row: int
                         new_col: int
                         new_row, new_col = random.choice(possible_moves)
-                        old_ant = antList[row][col]
+                        
 
+                        antList[row][col].step_count += 1
                         antList[row][col].energy -= 1  # 1 movement cost 1 energy
+                        old_ant = antList[row][col]
                         self.world[row][col] = EMPTY
-                        antList[new_row][new_col] = Ant(old_ant.x, old_ant.y, old_ant.energy)
+                        antList[new_row][new_col] = Ant(old_ant.x, old_ant.y, old_ant.energy, old_ant.step_count)
                         antList[row][col] = None
                         self.world[new_row][new_col] = ANT
 
@@ -111,6 +121,12 @@ class GameBoard:
                             antList[new_row][new_col] = None # Ant's Energy died
                             self.world[new_row][new_col] = EMPTY
 
+                        if (antList[new_row][new_col] is not None) and (antList[new_row][new_col].step_count % 6 == 0) and (antList[row][col] is None):
+                            new_ant = antList[new_row][new_col].reproduce(row, col)
+                            if new_ant is not None:
+                                antList[new_ant.x][new_ant.y] = new_ant
+                                self.world[new_ant.x][new_ant.y] = ANT
+                    
         self.antList = antList
 
 def main() -> None:
