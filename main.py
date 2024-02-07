@@ -25,7 +25,7 @@ class Ant:
         dy: int = random.choice([-1, 0, 1])
         return self.move(dx, dy)
 
-    def reproduce(self, old_x, old_y) -> 'Ant':
+    def reproduce(self, old_x, old_y) -> "Ant | None":
         if self.step_count >= 5:
             return Ant(old_x, old_y, 5, 1)
         else:
