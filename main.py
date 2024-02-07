@@ -69,7 +69,6 @@ class GameBoard:
         system('cls')
         for line in self.world:
             print(line)
-        #print("-"*(self.width*5))
     
     def move_ants(self):
         antList: list[list[Ant | None]] = [
