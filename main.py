@@ -2,8 +2,8 @@ import random
 import time
 from os import system
 
-BOUNDARY_X = 5
-BOUNDARY_Y = 5
+BOUNDARY_X = 15
+BOUNDARY_Y = 15
 
 ANT = "🐜"
 FRUIT = "🍐"
@@ -42,7 +42,7 @@ class GameBoard:
                 ]
         self.fruitList: list[list[bool]] = [ [tile == FRUIT for tile in line] for line in self.world ]
     
-    def select_entity(self, ant_mod: float = 0.2, fruit_mod: float = 0.3, space_mod: float = 0.5) -> str:
+    def select_entity(self, ant_mod: float = 0.2, fruit_mod: float = 0.5, space_mod: float = 0.5) -> str:
         ant_chance: float = random.random() * ant_mod
         fruit_chance: float = random.random() * fruit_mod
 
@@ -59,14 +59,20 @@ class GameBoard:
         else:
             return EMPTY
     
-    def get_new_fruit_location(self, new_row: int, new_col: int, antList: list[list[Ant | None]]) -> tuple[int, int]:
-        return random.choice([
-                (x, y)
-                for x, line in enumerate(self.world)
-                for y, line in enumerate(line)
-                if x != new_row and y != new_col
-                if not antList[x][y] and not self.fruitList[x][y]
-            ])
+    def get_new_fruit_location(self, new_row: int, new_col: int, antList: list[list[Ant | None]]) -> tuple[int, int] | None:
+        available_locations = [
+            (x, y)
+            for x, line in enumerate(self.world)
+            for y, line in enumerate(line)
+            if x != new_row and y != new_col
+            if not antList[x][y] and not self.fruitList[x][y]
+        ]
+
+        if available_locations:
+            return random.choice(available_locations)
+        else:
+            return None
+
                  
     def print_world(self) -> None:
         system('cls')
@@ -112,11 +118,12 @@ class GameBoard:
 
                             self.fruitList[new_row][new_col] = False 
 
-                            respawn_row, respawn_col = self.get_new_fruit_location(new_row, new_col, antList)
-
-                            self.fruitList[respawn_row][respawn_col] = True
-                            self.world[respawn_row][respawn_col] = FRUIT
-                        
+                            respawn_location = self.get_new_fruit_location(new_row, new_col, antList)
+                            if respawn_location is not None:
+                                respawn_row, respawn_col = respawn_location
+                                self.fruitList[respawn_row][respawn_col] = True
+                                self.world[respawn_row][respawn_col] = FRUIT
+                                            
                         if antList[new_row][new_col].energy == 0:
                             antList[new_row][new_col] = None # Ant's Energy died
                             self.world[new_row][new_col] = EMPTY
