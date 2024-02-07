@@ -16,9 +16,6 @@ class Ant:
         self.energy = energy
         self.step_count = step_count
 
-    def count(self):
-        self.step_count += 1
-
     def move(self, dx: int, dy: int) -> tuple[int, int]:
         self.step_count += 1
         return (self.x + dx, self.y + dy)
