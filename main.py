@@ -26,10 +26,7 @@ class Ant:
         return self.move(dx, dy)
 
     def reproduce(self, old_x, old_y) -> "Ant | None":
-        if self.step_count >= 5:
-            return Ant(old_x, old_y, 5, 1)
-        else:
-            return None
+        return Ant(old_x, old_y, 5, 1) if self.step_count >= 5 else None
 
 class GameBoard:
     def __init__(self, width: int, height: int, initial_energy: int = 5 , initial_step: int = 1) -> None:
