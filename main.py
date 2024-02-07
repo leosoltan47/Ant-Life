@@ -17,15 +17,15 @@ class Ant:
         self.step_count = step_count
 
     def move(self, dx: int, dy: int) -> tuple[int, int]:
-        self.step_count += 1
         return (self.x + dx, self.y + dy)
     
     def action(self):
+        self.step_count += 1
         dx: int = random.choice([-1, 0, 1])
         dy: int = random.choice([-1, 0, 1])
         return self.move(dx, dy)
 
-    def reproduce(self, old_x, old_y) -> 'Ant':
+    def reproduce(self, old_x, old_y) -> 'Ant' | None:
         if self.step_count >= 5:
             return Ant(old_x, old_y, 5, 1)
         else:
@@ -123,7 +123,6 @@ class GameBoard:
 
                         if (antList[new_row][new_col] is not None) and (antList[new_row][new_col].step_count % 6 == 0) and (antList[row][col] is None):
                             new_ant = antList[new_row][new_col].reproduce(row, col)
-                            print("hello")
                             if new_ant is not None:
                                 antList[new_ant.x][new_ant.y] = new_ant
                                 self.world[new_ant.x][new_ant.y] = ANT
