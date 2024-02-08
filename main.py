@@ -2,8 +2,8 @@ import random
 import time
 from os import system
 
-BOUNDARY_X = 15
-BOUNDARY_Y = 15
+BOUNDARY_X = 5
+BOUNDARY_Y = 5
 
 ANT = "🐜"
 FRUIT = "🍐"
@@ -75,7 +75,8 @@ class GameBoard:
         system('cls')
         for line in self.world:
             print(line)
-    def update_fruits(self, ants: list[list[Ant|None]], new_row: int, new_col:int) -> None:
+
+    def update_fruit(self, ants: list[list[Ant|None]], new_row: int, new_col:int) -> None:
         if self.fruits[new_row][new_col]:
             ants[new_row][new_col].energy += 3 # 1 fruit gives 3 energy
 
@@ -87,7 +88,7 @@ class GameBoard:
                 self.fruits[respawn_row][respawn_col] = True
                 self.world[respawn_row][respawn_col] = FRUIT
 
-    def reproduce_ants(self, ants: list[list[Ant|None]], row: int, col: int, new_row: int, new_col:int) -> None:
+    def reproduce_ant(self, ants: list[list[Ant|None]], row: int, col: int, new_row: int, new_col:int) -> None:
         if ants[new_row][new_col].energy == 0:
             ants[new_row][new_col] = None # Ant's Energy died
             self.world[new_row][new_col] = EMPTY
@@ -105,34 +106,34 @@ class GameBoard:
                 ]
         for row in range(len(self.world)):
             for col in range(len(self.world[row])):
-                if self.ants[row][col] is not None: 
-                    possible_moves: list = []
+                if self.ants[row][col] is None: 
+                    continue
+                possible_moves: list = []
 
-                    if row - 1 >= 0 and (ants[row - 1][col] is None):
-                        possible_moves.append((row - 1, col))
-                    if row + 1 < len(self.world) and (ants[row + 1][col] is None):
-                        possible_moves.append((row + 1, col))
-                    if col - 1 >= 0 and (ants[row][col - 1] is None):
-                        possible_moves.append((row, col - 1))
-                    if col + 1 < len(self.world[row]) and (ants[row][col + 1] is None):
-                        possible_moves.append((row, col + 1)) 
+                if row - 1 >= 0 and (ants[row - 1][col] is None):
+                    possible_moves.append((row - 1, col))
+                if row + 1 < len(self.world) and (ants[row + 1][col] is None):
+                    possible_moves.append((row + 1, col))
+                if col - 1 >= 0 and (ants[row][col - 1] is None):
+                    possible_moves.append((row, col - 1))
+                if col + 1 < len(self.world[row]) and (ants[row][col + 1] is None):
+                    possible_moves.append((row, col + 1)) 
 
-                    if possible_moves:
-                        new_row: int
-                        new_col: int
-                        new_row, new_col = random.choice(possible_moves)
-                        
+                if len(possible_moves) == 0:
+                    continue
+                new_row, new_col = random.choice(possible_moves)
+                
 
-                        ants[row][col].step_count += 1
-                        ants[row][col].energy -= 1  # 1 movement cost 1 energy
-                        old_ant = ants[row][col]
-                        self.world[row][col] = EMPTY
-                        ants[new_row][new_col] = Ant(old_ant.x, old_ant.y, old_ant.energy, old_ant.step_count)
-                        ants[row][col] = None
-                        self.world[new_row][new_col] = ANT
+                ants[row][col].step_count += 1
+                ants[row][col].energy -= 1  # 1 movement cost 1 energy
+                old_ant = ants[row][col]
+                self.world[row][col] = EMPTY
+                ants[new_row][new_col] = Ant(old_ant.x, old_ant.y, old_ant.energy, old_ant.step_count)
+                ants[row][col] = None
+                self.world[new_row][new_col] = ANT
 
-                        self.update_fruits(ants, new_row, new_col)
-                        self.reproduce_ants(ants, row, col, new_row, new_col)
+                self.update_fruit(ants, new_row, new_col)
+                self.reproduce_ant(ants, row, col, new_row, new_col)
 
                   
                     
