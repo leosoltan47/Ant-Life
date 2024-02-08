@@ -75,6 +75,16 @@ class GameBoard:
         system('cls')
         for line in self.world:
             print(line)
+    def reproduce_ants(self, ants: list[list[Ant|None]], row: int, col: int, new_row: int, new_col:int) -> None:
+        if ants[new_row][new_col].energy == 0:
+            ants[new_row][new_col] = None # Ant's Energy died
+            self.world[new_row][new_col] = EMPTY
+
+        if (ants[new_row][new_col] is not None) and (ants[new_row][new_col].step_count % 6 == 0) and (ants[row][col] is None):
+            new_ant = ants[new_row][new_col].reproduce(row, col)
+            if new_ant is not None:
+                ants[new_ant.x][new_ant.y] = new_ant
+                self.world[new_ant.x][new_ant.y] = ANT
     
     def move_ants(self):
         ants: list[list[Ant | None]] = [
@@ -119,16 +129,9 @@ class GameBoard:
                                 respawn_row, respawn_col = respawn_location
                                 self.fruits[respawn_row][respawn_col] = True
                                 self.world[respawn_row][respawn_col] = FRUIT
-                                            
-                        if ants[new_row][new_col].energy == 0:
-                            ants[new_row][new_col] = None # Ant's Energy died
-                            self.world[new_row][new_col] = EMPTY
+                        self.reproduce_ants(ants, row, col, new_row, new_col)
 
-                        if (ants[new_row][new_col] is not None) and (ants[new_row][new_col].step_count % 6 == 0) and (ants[row][col] is None):
-                            new_ant = ants[new_row][new_col].reproduce(row, col)
-                            if new_ant is not None:
-                                ants[new_ant.x][new_ant.y] = new_ant
-                                self.world[new_ant.x][new_ant.y] = ANT
+                  
                     
         self.ants = ants
 
