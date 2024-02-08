@@ -75,6 +75,18 @@ class GameBoard:
         system('cls')
         for line in self.world:
             print(line)
+    def update_fruits(self, ants: list[list[Ant|None]], new_row: int, new_col:int) -> None:
+        if self.fruits[new_row][new_col]:
+            ants[new_row][new_col].energy += 3 # 1 fruit gives 3 energy
+
+            self.fruits[new_row][new_col] = False 
+
+            respawn_location = self.get_new_fruit_location(new_row, new_col, ants)
+            if respawn_location is not None:
+                respawn_row, respawn_col = respawn_location
+                self.fruits[respawn_row][respawn_col] = True
+                self.world[respawn_row][respawn_col] = FRUIT
+
     def reproduce_ants(self, ants: list[list[Ant|None]], row: int, col: int, new_row: int, new_col:int) -> None:
         if ants[new_row][new_col].energy == 0:
             ants[new_row][new_col] = None # Ant's Energy died
@@ -119,16 +131,7 @@ class GameBoard:
                         ants[row][col] = None
                         self.world[new_row][new_col] = ANT
 
-                        if self.fruits[new_row][new_col]:
-                            ants[new_row][new_col].energy += 3 # 1 fruit gives 3 energy
-
-                            self.fruits[new_row][new_col] = False 
-
-                            respawn_location = self.get_new_fruit_location(new_row, new_col, ants)
-                            if respawn_location is not None:
-                                respawn_row, respawn_col = respawn_location
-                                self.fruits[respawn_row][respawn_col] = True
-                                self.world[respawn_row][respawn_col] = FRUIT
+                        self.update_fruits(ants, new_row, new_col)
                         self.reproduce_ants(ants, row, col, new_row, new_col)
 
                   
