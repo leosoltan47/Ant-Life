@@ -2,8 +2,8 @@ import random
 import time
 from os import system
 
-BOUNDARY_X = 5
-BOUNDARY_Y = 5
+BOUNDARY_X = 15
+BOUNDARY_Y = 15
 
 ANT = "🐜"
 FRUIT = "🍐"
@@ -134,9 +134,6 @@ class GameBoard:
 
                 self.update_fruit(ants, new_row, new_col)
                 self.reproduce_ant(ants, row, col, new_row, new_col)
-
-                  
-                    
         self.ants = ants
 
 def main() -> None:
