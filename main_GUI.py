@@ -22,9 +22,9 @@ class GameGUI:
         self.start_button = tk.Button(self.master, text="Start Simulation", command= self.start_simulation)
         self.start_button.pack()
 
-        self.update_canvas(0, 0, False)
+        self.update_canvas()
 
-    def update_canvas(self, old_antList, a, do):
+    def update_canvas(self):
         self.canvas.delete("all") # No more need for os library
 
         for row in range(len(self.game_board.world)):
@@ -32,33 +32,18 @@ class GameGUI:
                 x1, y1 = col * 50, row * 50 # Top Left Corner
                 x2, y2 = x1 + 50, y1 + 50 # Bottom Right Corner
 
-                if self.game_board.world[row][col] == ANT and do:
-                    if row - 1 >= 0 and old_antList[row-1][col] is not None:
-                      self.canvas.create_text(((x1 + x2) // 2), (y1 + y2) // 2 - 50 + a, text=ANT, font=("Arial", 16)) # Center of Entry
-                    elif row + 1 < BOUNDARY_X and old_antList[row+1][col] is not None:
-                      self.canvas.create_text(((x1 + x2) // 2), (y1 + y2) // 2  + 50 - a, text=ANT, font=("Arial", 16)) # Center of Entry
-                    elif col - 1 >= 0 and old_antList[row][col-1] is not None:
-                      self.canvas.create_text((x1 + x2) // 2 - 50 + a, ((y1 + y2) // 2), text=ANT, font=("Arial", 16)) # Center of Entry
-                    elif col + 1 < BOUNDARY_Y and old_antList[row][col+1] is not None:
-                      self.canvas.create_text((x1 + x2) // 2 + 50 - a, ((y1 + y2) // 2), text=ANT, font=("Arial", 16)) # Center of Entry
-                
-                elif self.game_board.world[row][col] == ANT and not do:
-                     self.canvas.create_text((x1 + x2) // 2, (y1 + y2) // 2, text=ANT, font=("Arial", 16)) # Center of Entry
-                    
+                if self.game_board.world[row][col] == ANT:
+                    self.canvas.create_text((x1 + x2) // 2, (y1 + y2) // 2, text=ANT, font=("Arial", 16)) # Center of Entry
                 elif self.game_board.world[row][col] == FRUIT:
                     self.canvas.create_text((x1 + x2) // 2, (y1 + y2) // 2, text=FRUIT, font=("Arial", 16))
 
     def start_simulation(self):
         self.start_button.config(state=tk.DISABLED)
-    
+
         while True: 
-            old_antList = self.game_board.ants[:] # Copy 
             self.game_board.move_ants()
-            a = 5
-            for _ in range(10):
-              self.update_canvas(old_antList, a, True)
-              self.master.update()  # Update window
-              a += 5
+            self.update_canvas()
+            self.master.update()  # Update window
             sleep(1)
 class Ant:
     def __init__(self, x: int, y: int, energy: int, step_count: int) -> None:
@@ -90,7 +75,7 @@ class GameBoard:
                 ]
         self.fruits: list[list[bool]] = [ [tile == FRUIT for tile in line] for line in self.world ]
     
-    def select_entity(self, ant_mod: float = 0.15, fruit_mod: float = 0.4, space_mod: float = 0.5) -> str:
+    def select_entity(self, ant_mod: float = 0.2, fruit_mod: float = 0.4, space_mod: float = 0.5) -> str:
         ant_chance: float = random.random() * ant_mod
         fruit_chance: float = random.random() * fruit_mod
 
