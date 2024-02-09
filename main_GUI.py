@@ -1,6 +1,6 @@
 import random
-import time
-from os import system
+from time import sleep
+import tkinter as tk
 
 BOUNDARY_X = 5
 BOUNDARY_Y = 5
@@ -9,6 +9,42 @@ ANT = "🐜"
 FRUIT = "🍐"
 EMPTY = "  "
 
+class GameGUI:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Ant Simulation Game")
+
+        self.game_board = GameBoard(BOUNDARY_X, BOUNDARY_Y)
+
+        self.canvas = tk.Canvas(self.master, width=BOUNDARY_X * 50, height=BOUNDARY_Y * 50) 
+        self.canvas.pack() # Window Created
+
+        self.start_button = tk.Button(self.master, text="Start Simulation", command= self.start_simulation)
+        self.start_button.pack()
+
+        self.update_canvas()
+
+    def update_canvas(self):
+        self.canvas.delete("all") # No more need for os library
+
+        for row in range(len(self.game_board.world)):
+            for col in range(len(self.game_board.world[row])):
+                x1, y1 = col * 50, row * 50 # Top Left Corner
+                x2, y2 = x1 + 50, y1 + 50 # Bottom Right Corner
+
+                if self.game_board.world[row][col] == ANT:
+                    self.canvas.create_text((x1 + x2) // 2, (y1 + y2) // 2, text=ANT, font=("Arial", 16)) # Center of Entry
+                elif self.game_board.world[row][col] == FRUIT:
+                    self.canvas.create_text((x1 + x2) // 2, (y1 + y2) // 2, text=FRUIT, font=("Arial", 16))
+
+    def start_simulation(self):
+        self.start_button.config(state=tk.DISABLED)
+
+        while True: 
+            self.game_board.move_ants()
+            self.update_canvas()
+            self.master.update()  # Update window
+            sleep(1)
 class Ant:
     def __init__(self, x: int, y: int, energy: int, step_count: int) -> None:
         self.x = x
@@ -39,7 +75,7 @@ class GameBoard:
                 ]
         self.fruits: list[list[bool]] = [ [tile == FRUIT for tile in line] for line in self.world ]
     
-    def select_entity(self, ant_mod: float = 0.2, fruit_mod: float = 0.5, space_mod: float = 0.5) -> str:
+    def select_entity(self, ant_mod: float = 0.2, fruit_mod: float = 0.4, space_mod: float = 0.5) -> str:
         ant_chance: float = random.random() * ant_mod
         fruit_chance: float = random.random() * fruit_mod
 
@@ -69,11 +105,6 @@ class GameBoard:
             return random.choice(available_locations)
         else:
             return None
-       
-    def print_world(self) -> None:
-        system('cls')
-        for line in self.world:
-            print(line)
 
     def update_fruit(self, ants: list[list[Ant|None]], new_row: int, new_col:int) -> None:
         if self.fruits[new_row][new_col]:
@@ -122,7 +153,6 @@ class GameBoard:
                     continue
                 new_row, new_col = random.choice(possible_moves)
                 
-
                 ants[row][col].step_count += 1
                 ants[row][col].energy -= 1  # 1 movement cost 1 energy
                 old_ant = ants[row][col]
@@ -136,11 +166,9 @@ class GameBoard:
         self.ants = ants
 
 def main() -> None:
-    World: GameBoard = GameBoard(BOUNDARY_X, BOUNDARY_Y)
-    while True:
-        World.print_world()
-        World.move_ants()
-        time.sleep(1)  
+    root = tk.Tk()
+    game_gui = GameGUI(root)
+    root.mainloop()
 
 if __name__ == "__main__":
     main()
