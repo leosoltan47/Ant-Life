@@ -59,8 +59,8 @@ class GameBoard:
     def get_new_fruit_location(self, new_row: int, new_col: int, ants: list[list[Ant | None]]) -> tuple[int, int] | None:
         available_locations = [
             (x, y)
-            for x, line in enumerate(self.world)
-            for y, line in enumerate(line)
+            for x, row_data in enumerate(self.world)
+            for y, _ in enumerate(row_data)
             if x != new_row and y != new_col
             if not ants[x][y] and not self.fruits[x][y]
         ]
@@ -127,7 +127,7 @@ class GameBoard:
                 ants[row][col].energy -= 1  # 1 movement cost 1 energy
                 old_ant = ants[row][col]
                 self.world[row][col] = EMPTY
-                ants[new_row][new_col] = Ant(old_ant.x, old_ant.y, old_ant.energy, old_ant.step_count)
+                ants[new_row][new_col] = Ant(new_row, new_col, old_ant.energy, old_ant.step_count)
                 ants[row][col] = None
                 self.world[new_row][new_col] = ANT
 
